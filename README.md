@@ -1,17 +1,20 @@
 # Wallet
 
-<!-- Одна фраза: что это и на чём написано. По ней EM решает, читать ли дальше -->
-TODO
+A multi-currency wallet backend in Go with a double-entry ledger — a production-style pet project.
 
 ## Why
 
-<!-- 2–3 предложения своими словами: зачем проект и что он показывает. Прямо назови его pet project -->
-TODO
+My pet project to show how a fintech backend is built end to end: money as integer minor units,
+a double-entry ledger, transfers in a single database transaction, idempotent requests,
+events via Kafka with the outbox pattern, and observability. It grows in small working stages —
+the roadmap shows where it is now.
+
+## Getting started
 
 ## Roadmap
 
 <!-- Строки = этапы плана, по порядку -->
-- [ ] Repository setup and healthcheck
+- [x] Repository setup and healthcheck
 - [ ] Domain: money, accounts, double-entry ledger
 - [ ] REST API with in-memory storage
 - [ ] PostgreSQL: transfers in a single transaction, migrations
