@@ -17,8 +17,8 @@ var (
 	ErrUnknownCurrency  = errors.New("unknown currency")
 	ErrCurrencyMismatch = errors.New("currency mismatch")
 )
-
-type Money struct { // Money is an amount in minor units of one currency
+// Money is an amount in minor units of one currency
+type Money struct {
 	amount   int64
 	currency Currency
 }
@@ -39,7 +39,7 @@ func (m Money) Currency() Currency {
 }
 func (m Money) Add(other Money) (Money, error) {
 	if m.currency != other.currency {
-		return Money{}, fmt.Errorf("%w: %q", ErrCurrencyMismatch, m.currency)
+		return Money{}, fmt.Errorf("%w: %s and %s", ErrCurrencyMismatch, m.currency, other.currency)
 	}
 
 	result := m.amount + other.amount
@@ -48,7 +48,7 @@ func (m Money) Add(other Money) (Money, error) {
 }
 func (m Money) Sub(other Money) (Money, error) {
 	if m.currency != other.currency {
-		return Money{}, fmt.Errorf("%w: %q", ErrCurrencyMismatch, m.currency)
+		return Money{}, fmt.Errorf("%w: %s and %s", ErrCurrencyMismatch, m.currency, other.currency)
 	}
 
 	result := m.amount - other.amount
