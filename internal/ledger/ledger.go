@@ -47,7 +47,7 @@ func NewTransaction(entries ...Entry) (Transaction, error) {
 
 	for currency, value := range currencies {
 		if value != 0 {
-			return Transaction{}, fmt.Errorf("%w: %s is off by %d", ErrUnbalanced, currency, value)
+			return Transaction{}, fmt.Errorf("%w: %s is off by %d", ErrUnbalanced, currency, len(currencies))
 		}
 	}
 
