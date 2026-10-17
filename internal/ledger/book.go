@@ -3,6 +3,7 @@ package ledger
 import (
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/IvanShchadov/wallet/internal/money"
 )
@@ -23,6 +24,7 @@ var (
 
 // Ledger is an append-only book of transactions.
 type Ledger struct {
+	mu           sync.RWMutex // guards accounts and transactions
 	accounts     map[AccountID]AccountKind
 	transactions []Transaction
 }
@@ -44,6 +46,9 @@ func New() *Ledger {
 
 // Open adds an account to the ledger.
 func (l *Ledger) Open(id AccountID, kind AccountKind) error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
 	if _, ok := l.accounts[id]; ok {
 		return fmt.Errorf("%w: %s", ErrAccountExists, id)
 	}
@@ -54,6 +59,7 @@ func (l *Ledger) Open(id AccountID, kind AccountKind) error {
 }
 
 // sum adds up the account's entries in the currency.
+// Call it only while holding l.mu.
 func (l *Ledger) sum(id AccountID, currency money.Currency) int64 {
 	var amount int64
 
@@ -70,6 +76,9 @@ func (l *Ledger) sum(id AccountID, currency money.Currency) int64 {
 
 // Post appends a transaction. If it is rejected, the ledger does not change.
 func (l *Ledger) Post(tx Transaction) error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
 	if len(tx.entries) < 2 {
 		return fmt.Errorf("%w: got %d", ErrTooFewEntries, len(tx.entries))
 	}
@@ -98,6 +107,8 @@ func (l *Ledger) Post(tx Transaction) error {
 
 // Balance returns the sum of the account's entries in the currency.
 func (l *Ledger) Balance(id AccountID, currency money.Currency) (money.Money, error) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
 	if _, ok := l.accounts[id]; !ok {
 		return money.Money{}, fmt.Errorf("%w: %s", ErrUnknownAccount, id)
 	}
