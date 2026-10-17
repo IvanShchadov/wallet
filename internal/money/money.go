@@ -17,6 +17,7 @@ var (
 	ErrUnknownCurrency  = errors.New("unknown currency")
 	ErrCurrencyMismatch = errors.New("currency mismatch")
 )
+
 // Money is an amount in minor units of one currency
 type Money struct {
 	amount   int64
