@@ -1,0 +1,36 @@
+# Deployment — объект «хочу, чтобы всегда работало N копий wallet-api».
+# Это желаемое состояние (desired state). Controllers следят, чтобы так и было.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wallet-api
+spec:
+  replicas: 3                    # сколько копий (pod-ов) должно работать всегда
+  selector:
+    matchLabels:
+      app: wallet-api            # какие pod-ы считать своими: те, у кого есть эта метка
+  template:                      # шаблон pod-а: по нему создают каждую копию
+    metadata:
+      labels:
+        app: wallet-api          # та самая метка, по которой selector находит pod-ы
+    spec:
+      containers:
+        - name: api
+          image: wallet-api:0.1  # образ, который ты соберёшь через docker build
+          imagePullPolicy: Never # образ только локальный: не искать его в интернете
+          ports:
+            - containerPort: 8080  # на этом порту слушает main.go
+          resources:
+            requests:            # сколько ресурсов нужно pod-у: по этим цифрам scheduler выбирает node
+              cpu: 50m           # 50 тысячных одного ядра
+              memory: 32Mi
+          readinessProbe:        # «готов принимать трафик?» kubelet дёргает /healthz каждые 5 секунд
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 5
+          livenessProbe:         # «живой?» если /healthz перестанет отвечать, kubelet перезапустит контейнер
+            httpGet:
+              path: /healthz
+              port: 8080
+            periodSeconds: 10
